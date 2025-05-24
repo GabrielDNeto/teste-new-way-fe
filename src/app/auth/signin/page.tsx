@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { getErrorMessage } from "@/helpers/get-error-message";
 import { signIn } from "@/services/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -46,10 +47,10 @@ export default function SignIn() {
         push("/");
       }
     },
-    onError: () => {
-      toast.warning("Email ou senha inválidos", {
+    onError: (error) => {
+      toast.warning("Erro ao fazer login", {
         closeButton: true,
-        description: "Verifique suas credenciais e tente novamente.",
+        description: getErrorMessage(error),
       });
     },
   });
@@ -109,6 +110,7 @@ export default function SignIn() {
                 className="w-full"
                 variant="outline"
                 size="lg"
+                onClick={() => push("/auth/signup")}
               >
                 Criar uma conta
               </Button>
