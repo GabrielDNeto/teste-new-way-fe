@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { ROUTES } from "@/constants/routes";
 import { getErrorMessage } from "@/helpers/get-error-message";
 import { createUser } from "@/services/users";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -53,7 +54,7 @@ export default function SignUp() {
     onSuccess: () => {
       form.reset();
       toast.success("Usuário cadastrado com sucesso!");
-      push("/auth/signin");
+      push(ROUTES.public.signin);
     },
     onError: (error: unknown) => {
       toast.error("Erro ao cadastrar usuário", {
@@ -149,6 +150,7 @@ export default function SignUp() {
                 className="w-full"
                 variant="outline"
                 size="lg"
+                onClick={() => push(ROUTES.public.signin)}
               >
                 Voltar para o Login
               </Button>
