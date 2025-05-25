@@ -4,6 +4,6 @@ export const ROUTES = {
     signup: "/auth/signup",
   },
   private: {
-    home: "/",
+    tasks: "/tasks",
   },
 };

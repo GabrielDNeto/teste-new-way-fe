@@ -43,9 +43,10 @@ export default function SignIn() {
   const signinMutate = useMutation({
     mutationFn: signIn,
     onSuccess: ({ data }) => {
-      if (data.access_token) {
-        localStorage.setItem("access_token", data.access_token);
-        push(ROUTES.private.home);
+      if (data) {
+        localStorage.setItem("@session:access_token", data.access_token);
+        form.reset();
+        push(ROUTES.private.tasks);
       }
     },
     onError: (error) => {
@@ -99,10 +100,12 @@ export default function SignIn() {
             />
 
             <div className="flex flex-col space-y-4 mt-4">
-              <Button type="submit" className="w-full" size="lg">
-                {signinMutate.isPending && (
-                  <Loader2 className="animate-spin mr-2" />
-                )}
+              <Button
+                type="submit"
+                className="w-full flex items-center gap-4"
+                size="lg"
+              >
+                {signinMutate.isPending && <Loader2 className="animate-spin" />}
                 Entrar
               </Button>
 
