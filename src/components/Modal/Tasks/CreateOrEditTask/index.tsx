@@ -23,7 +23,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getErrorMessage } from "@/helpers/get-error-message";
-import { createTask, getTaskById } from "@/services/tasks";
+import {
+  createTask,
+  deleteTask,
+  getTaskById,
+  updateTask,
+} from "@/services/tasks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -88,6 +93,21 @@ export default function CreateOrEditTaskModal({
     },
   });
 
+  const updateTaskMutation = useMutation({
+    mutationFn: updateTask,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Tarefa editada com sucesso!", {
+        description: "Agora você pode vê-la na lista de tarefas.",
+      });
+    },
+    onError: (err) => {
+      toast.error("Erro ao editar tarefa!", {
+        description: getErrorMessage(err),
+      });
+    },
+  });
+
   const handleOpenChange = () => {
     form.reset();
     onOpenChange();
@@ -96,10 +116,11 @@ export default function CreateOrEditTaskModal({
   const submit = (data: CreateOrEditTaskFormValues) => {
     if (!taskId) {
       createTaskMutation.mutate(data);
-      handleOpenChange();
     } else {
-      console.log("aqui tem taskid", data);
+      updateTaskMutation.mutate({ id: Number(taskId), ...data });
     }
+
+    handleOpenChange();
   };
 
   useEffect(() => {
@@ -190,7 +211,19 @@ export default function CreateOrEditTaskModal({
               />
 
               <div className="w-full flex justify-end">
-                <Button type="submit" disabled={!form.formState.isDirty}>
+                <Button
+                  type="submit"
+                  disabled={
+                    !form.formState.isDirty &&
+                    (createTaskMutation.isPending ||
+                      updateTaskMutation.isPending)
+                  }
+                  className="flex items-center gap-4"
+                >
+                  {(createTaskMutation.isPending ||
+                    updateTaskMutation.isPending) && (
+                    <Loader2 className="animate-spin" />
+                  )}
                   {!taskId ? "Criar tarefa" : "Salvar tarefa"}
                 </Button>
               </div>

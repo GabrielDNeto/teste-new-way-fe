@@ -1,0 +1,161 @@
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useAuth } from "@/contexts/auth";
+import { getErrorMessage } from "@/helpers/get-error-message";
+import {
+  createTask,
+  deleteTask,
+  updateTask,
+  updateTaskStatus,
+} from "@/services/tasks";
+import { ITask } from "@/services/tasks/types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import dayjs from "dayjs";
+import { MoreHorizontal } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+
+interface ITasksTableProps {
+  tasks: ITask[];
+}
+
+export default function TasksTable({ tasks }: ITasksTableProps) {
+  const { user } = useAuth();
+
+  const isAdmin = user?.isAdmin || false;
+
+  const queryClient = useQueryClient();
+  const { push } = useRouter();
+  const searchParams = useSearchParams();
+
+  const deleteTaskMutation = useMutation({
+    mutationFn: deleteTask,
+    onSuccess: () => {
+      toast.success("Tarefa excluída com sucesso!", {
+        description: "Agora você não a verá mais na lista de tarefas",
+      });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+    onError: (err) => {
+      toast.error("Erro ao excluir tarefa!", {
+        description: getErrorMessage(err),
+      });
+    },
+  });
+
+  const updateTaskStatusMutation = useMutation({
+    mutationFn: updateTaskStatus,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Tarefa editada com sucesso!", {
+        description: "Agora você pode vê-la na lista de tarefas.",
+      });
+    },
+    onError: (err) => {
+      toast.error("Erro ao editar tarefa!", {
+        description: getErrorMessage(err),
+      });
+    },
+  });
+
+  const handleChangeTaskStatus = (id: number, status: string) =>
+    status === "finished" ? (
+      <DropdownMenuItem
+        onClick={() =>
+          updateTaskStatusMutation.mutate({ id, status: "pending" })
+        }
+      >
+        Renovar
+      </DropdownMenuItem>
+    ) : (
+      <DropdownMenuItem
+        onClick={() =>
+          updateTaskStatusMutation.mutate({ id, status: "finished" })
+        }
+      >
+        Concluir
+      </DropdownMenuItem>
+    );
+
+  const handleTaskStatusBadge = (status: string) =>
+    status === "finished" ? (
+      <Badge className="bg-lime-500 hover:bg-lime-600">Concluída</Badge>
+    ) : (
+      <Badge className="bg-slate-400">Pendente</Badge>
+    );
+
+  const handleEditTask = (taskId: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("id", String(taskId));
+    push(`?${params.toString()}`);
+  };
+
+  return (
+    <Card className="p-6 h-full">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {isAdmin && <TableHead>Usuário</TableHead>}
+            <TableHead>Título</TableHead>
+            <TableHead>Descrição</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Última atualização</TableHead>
+            <TableHead>Ações</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {tasks?.map((task) => (
+            <TableRow key={task.id}>
+              {isAdmin && (
+                <TableCell className="font-semibold">
+                  {task.user.name}
+                </TableCell>
+              )}
+              <TableCell>{task.title}</TableCell>
+              <TableCell>{task.description}</TableCell>
+              <TableCell>{handleTaskStatusBadge(task.status)}</TableCell>
+              <TableCell>
+                {dayjs(task.updatedAt).format("DD/MM/YYYY")}
+              </TableCell>
+              <TableCell>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                      <MoreHorizontal />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {handleChangeTaskStatus(task.id, task.status)}
+                    <DropdownMenuItem onClick={() => handleEditTask(task.id)}>
+                      Editar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => deleteTaskMutation.mutate(task.id)}
+                    >
+                      Excluir
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Card>
+  );
+}
