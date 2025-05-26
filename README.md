@@ -2,11 +2,15 @@
 
 App [Next](https://nextjs.org/) para gestão de tarefas, com cadastro de usuário e sistema de autenticação.
 
+### Pré-requisitos
+- [Node 22](https://nodejs.org/en/blog/release/v22.11.0)
+
+### Passos
 1. **Clone o repositório e acesse a pasta do projeto:**
 
    ```bash
    git clone https://github.com/GabrielDNeto/teste-new-way-fe.git
-   cd api teste-new-way-fe
+   cd teste-new-way-fe
    ```
 
 2. **Configure as variáveis de ambiente:**
