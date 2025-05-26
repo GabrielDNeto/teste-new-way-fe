@@ -1,6 +1,8 @@
 "use client";
 
+import { ROUTES } from "@/constants/routes";
 import axios from "axios";
+import { redirect } from "next/navigation";
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -27,8 +29,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      console.warn("Unauthorized! Maybe redirect to login...");
-      // Optional: handle logout or redirect here
+      localStorage.removeItem("@session:access_token");
+      redirect(ROUTES.public.signin);
     }
     return Promise.reject(error);
   }
