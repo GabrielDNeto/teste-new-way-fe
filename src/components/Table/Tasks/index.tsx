@@ -1,3 +1,4 @@
+import TablePagination from "@/components/TablePagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -21,6 +22,7 @@ import {
   createTask,
   deleteTask,
   getAllTasks,
+  getAllTasksPaginated,
   updateTask,
   updateTaskStatus,
 } from "@/services/tasks";
@@ -29,9 +31,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 
 export default function TasksTable() {
+  const [page, setPage] = useState(1);
+
   const { user } = useAuth();
 
   const isAdmin = user?.isAdmin || false;
@@ -41,8 +46,8 @@ export default function TasksTable() {
   const searchParams = useSearchParams();
 
   const { data: tasks } = useQuery({
-    queryFn: getAllTasks,
-    queryKey: ["tasks"],
+    queryFn: () => getAllTasksPaginated({ page, items: 10 }),
+    queryKey: ["tasks", page],
     refetchOnWindowFocus: false,
   });
 
@@ -122,7 +127,7 @@ export default function TasksTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {tasks?.data.map((task) => (
+          {tasks?.data.data?.map((task) => (
             <TableRow key={task.id}>
               {isAdmin && (
                 <TableCell className="font-semibold">
@@ -159,6 +164,12 @@ export default function TasksTable() {
           ))}
         </TableBody>
       </Table>
+
+      <TablePagination
+        totalCount={tasks?.data.meta.total || 0}
+        currentPage={page}
+        setPage={setPage}
+      />
     </Card>
   );
 }
