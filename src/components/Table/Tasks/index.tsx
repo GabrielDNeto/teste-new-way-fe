@@ -29,7 +29,7 @@ import {
 import { ITask } from "@/services/tasks/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { MoreHorizontal } from "lucide-react";
+import { FolderSearch, MoreHorizontal } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -115,61 +115,73 @@ export default function TasksTable() {
 
   return (
     <Card className="p-6 h-full">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {isAdmin && <TableHead>Usuário</TableHead>}
-            <TableHead>Título</TableHead>
-            <TableHead>Descrição</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Última atualização</TableHead>
-            <TableHead>Ações</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {tasks?.data.data?.map((task) => (
-            <TableRow key={task.id}>
-              {isAdmin && (
-                <TableCell className="font-semibold">
-                  {task.user.name}
-                </TableCell>
-              )}
-              <TableCell>{task.title}</TableCell>
-              <TableCell>{task.description}</TableCell>
-              <TableCell>{handleTaskStatusBadge(task.status)}</TableCell>
-              <TableCell>
-                {dayjs(task.updatedAt).format("DD/MM/YYYY")}
-              </TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline">
-                      <MoreHorizontal />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    {handleChangeTaskStatus(task.id, task.status)}
-                    <DropdownMenuItem onClick={() => handleEditTask(task.id)}>
-                      Editar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => deleteTaskMutation.mutate(task.id)}
-                    >
-                      Excluir
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
+      {tasks?.data.data.length ? (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {isAdmin && <TableHead>Usuário</TableHead>}
+              <TableHead>Título</TableHead>
+              <TableHead>Descrição</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Última atualização</TableHead>
+              <TableHead>Ações</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {tasks?.data.data?.map((task) => (
+              <TableRow key={task.id}>
+                {isAdmin && (
+                  <TableCell className="font-semibold">
+                    {task.user.name}
+                  </TableCell>
+                )}
+                <TableCell>{task.title}</TableCell>
+                <TableCell>{task.description}</TableCell>
+                <TableCell>{handleTaskStatusBadge(task.status)}</TableCell>
+                <TableCell>
+                  {dayjs(task.updatedAt).format("DD/MM/YYYY")}
+                </TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline">
+                        <MoreHorizontal />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      {handleChangeTaskStatus(task.id, task.status)}
+                      <DropdownMenuItem onClick={() => handleEditTask(task.id)}>
+                        Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => deleteTaskMutation.mutate(task.id)}
+                      >
+                        Excluir
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : (
+        <div className="flex flex-col items-center justify-center h-full">
+          <FolderSearch className="w-16 h-16 text-gray-400 mb-4" />
+          <p className="text-gray-500">
+            Nenhuma tarefa encontrada, crie novas tarefas para visualizá-las
+            aqui.
+          </p>
+        </div>
+      )}
 
-      <TablePagination
-        totalCount={tasks?.data.meta.total || 0}
-        currentPage={page}
-        setPage={setPage}
-      />
+      {(tasks?.data.meta.total || 0) > 10 && (
+        <TablePagination
+          totalCount={tasks?.data.meta.total || 0}
+          currentPage={page}
+          setPage={setPage}
+        />
+      )}
     </Card>
   );
 }

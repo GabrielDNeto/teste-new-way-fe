@@ -19,6 +19,7 @@ import { getErrorMessage } from "@/helpers/get-error-message";
 import { getAllUsersPaginated, updateUserRole } from "@/services/users";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
+import { FolderSearch } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -26,7 +27,7 @@ export default function UsersTable() {
   const [page, setPage] = useState(1);
   const queryClient = useQueryClient();
 
-  const { data: users, isPlaceholderData } = useQuery({
+  const { data: users } = useQuery({
     queryFn: () => getAllUsersPaginated({ page, items: 10 }),
     queryKey: ["users", page],
     refetchOnWindowFocus: false,
@@ -49,41 +50,48 @@ export default function UsersTable() {
 
   return (
     <Card className="p-6 h-full">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Última atualização</TableHead>
-            <TableHead className="w-[160px]">Tipo de usuário</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users?.data.data?.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>
-                {dayjs(user.updatedAt).format("DD/MM/YYYY")}
-              </TableCell>
-              <TableCell className="w-[160px]">
-                <Select
-                  defaultValue={user.isAdmin ? "admin" : "member"}
-                  onValueChange={() => updateUserRoleMutation.mutate(user.id)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Tipo de usuário" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">Administrador</SelectItem>
-                    <SelectItem value="member">Member</SelectItem>
-                  </SelectContent>
-                </Select>
-              </TableCell>
+      {users?.data.data.length ? (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nome</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Última atualização</TableHead>
+              <TableHead className="w-[160px]">Tipo de usuário</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {users?.data.data?.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>{user.name}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>
+                  {dayjs(user.updatedAt).format("DD/MM/YYYY")}
+                </TableCell>
+                <TableCell className="w-[160px]">
+                  <Select
+                    defaultValue={user.isAdmin ? "admin" : "member"}
+                    onValueChange={() => updateUserRoleMutation.mutate(user.id)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Tipo de usuário" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="admin">Administrador</SelectItem>
+                      <SelectItem value="member">Member</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : (
+        <div className="flex flex-col items-center justify-center h-full">
+          <FolderSearch className="w-16 h-16 text-gray-400 mb-4" />
+          <p className="text-gray-500">Nenhum usuário encontrado.</p>
+        </div>
+      )}
 
       <TablePagination
         totalCount={users?.data.meta.total || 0}
