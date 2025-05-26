@@ -5,5 +5,6 @@ export const ROUTES = {
   },
   private: {
     tasks: "/tasks",
+    users: "/users",
   },
 };

@@ -15,13 +15,21 @@ export default function Header() {
 
         {isAdmin && (
           <nav>
-            <ul>
+            <ul className="flex items-center gap-6">
               <li className="text-sm">
                 <Link
                   href={ROUTES.private.tasks}
                   className="text-white hover:text-gray-300"
                 >
                   Tarefas
+                </Link>
+              </li>
+              <li className="text-sm">
+                <Link
+                  href={ROUTES.private.users}
+                  className="text-white hover:text-gray-300"
+                >
+                  Usuários
                 </Link>
               </li>
             </ul>

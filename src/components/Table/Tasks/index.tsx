@@ -20,21 +20,18 @@ import { getErrorMessage } from "@/helpers/get-error-message";
 import {
   createTask,
   deleteTask,
+  getAllTasks,
   updateTask,
   updateTaskStatus,
 } from "@/services/tasks";
 import { ITask } from "@/services/tasks/types";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
-interface ITasksTableProps {
-  tasks: ITask[];
-}
-
-export default function TasksTable({ tasks }: ITasksTableProps) {
+export default function TasksTable() {
   const { user } = useAuth();
 
   const isAdmin = user?.isAdmin || false;
@@ -42,6 +39,12 @@ export default function TasksTable({ tasks }: ITasksTableProps) {
   const queryClient = useQueryClient();
   const { push } = useRouter();
   const searchParams = useSearchParams();
+
+  const { data: tasks } = useQuery({
+    queryFn: getAllTasks,
+    queryKey: ["tasks"],
+    refetchOnWindowFocus: false,
+  });
 
   const deleteTaskMutation = useMutation({
     mutationFn: deleteTask,
@@ -119,7 +122,7 @@ export default function TasksTable({ tasks }: ITasksTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {tasks?.map((task) => (
+          {tasks?.data.map((task) => (
             <TableRow key={task.id}>
               {isAdmin && (
                 <TableCell className="font-semibold">

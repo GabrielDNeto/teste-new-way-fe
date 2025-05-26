@@ -1,52 +1,19 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { MoreHorizontal, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import CreateOrEditTaskModal from "@/components/Modal/Tasks/CreateOrEditTask";
-import { getErrorMessage } from "@/helpers/get-error-message";
-import { deleteTask, getAllTasks, updateTaskStatus } from "@/services/tasks";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import dayjs from "dayjs";
+import TasksTable from "@/components/Table/Tasks";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { z } from "zod";
-import TasksTable from "@/components/Table/Tasks";
-
-const tabEnum = z.enum(["my-tasks", "all-tasks"]);
-
-type TabType = z.infer<typeof tabEnum>;
 
 export default function Tasks() {
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
-  const [tab, setTap] = useState<TabType>("my-tasks");
 
   const { push } = useRouter();
   const searchParams = useSearchParams();
-
-  const { data: tasks } = useQuery({
-    queryFn: getAllTasks,
-    queryKey: ["tasks"],
-    refetchOnWindowFocus: false,
-  });
 
   const handleCloseDialog = () => {
     const params = new URLSearchParams(searchParams.toString());
@@ -80,7 +47,7 @@ export default function Tasks() {
           </Button>
         </div>
 
-        <TasksTable tasks={tasks?.data || []} />
+        <TasksTable />
       </div>
 
       {dialogIsOpen && (
