@@ -2,11 +2,21 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import { ROUTES } from "@/constants/routes";
 import { useAuth } from "@/contexts/auth";
+import { ArrowRightToLineIcon, DoorOpen } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
   const isAdmin = user?.isAdmin || false;
+
+  const { push } = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem("@session:access_token");
+    setUser(null);
+    push(ROUTES.public.signin);
+  };
 
   return (
     <header className="flex h-16 w-full items-center justify-between bg-gray-800 p-4 text-white">
@@ -36,7 +46,10 @@ export default function Header() {
           </nav>
         )}
 
-        <Button>Sair</Button>
+        <Button variant="ghost" onClick={handleLogout}>
+          <ArrowRightToLineIcon />
+          Sair
+        </Button>
       </div>
     </header>
   );
