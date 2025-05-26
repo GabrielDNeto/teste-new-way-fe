@@ -1,19 +1,19 @@
 import TablePagination from "@/components/TablePagination";
 import { Card } from "@/components/ui/card";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { getErrorMessage } from "@/helpers/get-error-message";
 import { getAllUsersPaginated, updateUserRole } from "@/services/users";
@@ -38,7 +38,6 @@ export default function UsersTable() {
       toast.success("Usuário atualizado com sucesso!", {
         description: "Você pode vê-lo na lista de usuários",
       });
-      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
     onError: (err) => {
       toast.success("Erro ao atualizar usuário!", {
